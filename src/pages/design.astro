@@ -1,0 +1,533 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import EventRow from '../components/EventRow.astro';
+import Icon from '../components/Icon.astro';
+import NextEvent from '../components/NextEvent.astro';
+import Notice from '../components/Notice.astro';
+import Tabs from '../components/Tabs.astro';
+import Tag from '../components/Tag.astro';
+import Wordmark from '../components/Wordmark.astro';
+import Chip from '../components/Chip.astro';
+import SbgMark from '../components/SbgMark.astro';
+import EventBoard from '../components/EventBoard.astro';
+import site from '../data/site.json';
+import { icons, type IconName } from '../lib/icons';
+import { splitEvents } from '../lib/events';
+
+const now = new Date();
+const all = await getCollection('events');
+const { upcoming, past } = splitEvents(all, now);
+const next = upcoming[0];
+
+const colours = [
+  { token: '--background', use: 'Page' },
+  { token: '--surface', use: 'Date blocks, notices, hover' },
+  { token: '--raised', use: 'Anything that sits above the page' },
+  { token: '--ink', use: 'Text' },
+  { token: '--muted', use: 'Secondary text' },
+  { token: '--subtle', use: 'Captions, sources' },
+  { token: '--border', use: 'Dividers' },
+  { token: '--border-strong', use: 'Secondary button outline' },
+  { token: '--brand', use: 'Deep orange: links and labels (AWS orange darkened for text contrast)' },
+  { token: '--brand-soft', use: 'Brand tag, active count' },
+  { token: '--band', use: 'Ink band for dark blocks' },
+  { token: '--accent', use: 'AWS orange: primary actions, the rail, Chip, posters' },
+  { token: '--success', use: 'Confirmed states only' },
+  { token: '--danger', use: 'Errors only' },
+];
+
+const type = [
+  { name: 'Display', token: '--text-display', weight: 400, sample: 'Learn. Build. Connect. Grow.' },
+  { name: 'Title', token: '--text-title', weight: 500, sample: 'End-of-Year Hangout 2026' },
+  { name: 'Heading', token: '--text-heading', weight: 500, sample: 'AWS Builder Center 101' },
+  {
+    name: 'Body',
+    token: '--text-body',
+    weight: 400,
+    sample: 'Membership is free and open to OAU students. Join the WhatsApp group so you hear about every event.',
+  },
+  { name: 'Small', token: '--text-small', weight: 400, sample: 'Sat 5 Dec · 12:00–18:00 WAT · Ilé-Ifẹ̀' },
+  { name: 'Caption', token: '--text-caption', weight: 500, sample: 'Counts from our Meetup group' },
+];
+
+const spaces = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const iconNames = Object.keys(icons) as IconName[];
+---
+
+<Base title="Design System" noindex>
+  <div class="page ds">
+    <header class="intro">
+      <p class="eyebrow">{site.short}</p>
+      <h1>Design System</h1>
+      <p class="lede">
+        Every page on the site takes its colours, type, spacing and parts from here. If a page needs something new, it is
+        added here first.
+      </p>
+      <div class="theme" role="group" aria-label="Theme">
+        <button type="button" data-set-theme="auto">Auto</button>
+        <button type="button" data-set-theme="light">Light</button>
+        <button type="button" data-set-theme="dark">Dark</button>
+      </div>
+    </header>
+
+    <section>
+      <h2>Mascot</h2>
+      <p class="note">Chip, built from the SBG chip mark. Poses: idle, wave, point, cheer. Eyes follow the pointer.</p>
+      <div class="chips">
+        <Chip pose="idle" />
+        <Chip pose="wave" />
+        <Chip pose="point" />
+        <Chip pose="cheer" />
+      </div>
+    </section>
+
+    <section>
+      <h2>Logo</h2>
+      <p class="note">
+        The AWS SBG lockup, laid out like Unilorin and GEU: AWS logo, divider, SBG mark, group name, school. The letters
+        follow the text colour so the logo works in both themes; the smile stays AWS orange. On phones the header drops the
+        AWS logo and shortens the school to OAU.
+      </p>
+      <div class="logos">
+        <Wordmark size="large" />
+        <Wordmark />
+        <span class="mark-tile"><SbgMark size={36} /></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Motion</h2>
+      <p class="note">
+        Motion shows something real happening: a section entering, the countdown ticking. Text never animates. Everything
+        stops under reduced motion, and nothing stays hidden if the script fails.
+      </p>
+      <dl class="motion-tokens">
+        <div><dt><code>--dur-fast</code></dt><dd>140ms · hover, press</dd></div>
+        <div><dt><code>--dur-base</code></dt><dd>260ms · state changes</dd></div>
+        <div><dt><code>--dur-slow</code></dt><dd>560ms · sections entering</dd></div>
+        <div><dt><code>--ease-out</code></dt><dd>entrances</dd></div>
+        <div><dt><code>--ease-spring</code></dt><dd>press</dd></div>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Colour</h2>
+      <p class="note">
+        One brand colour, AWS orange, with ink and white. OAU comes through in the content, not the palette.
+      </p>
+      <ul class="swatches">
+        {
+          colours.map((c) => (
+            <li>
+              <span class="chip" style={`background: var(${c.token})`} />
+              <code>{c.token}</code>
+              <span class="use">{c.use}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Type</h2>
+      <p class="note">Bricolage Grotesque for headings, Onest for text. Regular and medium only. Both cover Yoruba diacritics: Ifẹ̀, Ọbáfẹ́mi Awólọ́wọ̀.</p>
+      <dl class="type">
+        {
+          type.map((t) => (
+            <div class="type-row">
+              <dt>
+                <span>{t.name}</span>
+                <code>{t.token}</code>
+              </dt>
+              <dd style={`font-size: var(${t.token}); font-weight: ${t.weight}`}>{t.sample}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section>
+      <h2>Spacing And Radius</h2>
+      <ul class="spaces">
+        {
+          spaces.map((s) => (
+            <li>
+              <span class="bar" style={`width: var(--space-${s})`} />
+              <code>--space-{s}</code>
+            </li>
+          ))
+        }
+      </ul>
+      <ul class="radii">
+        <li><span class="r" style="border-radius: var(--radius-sm)" /><code>--radius-sm</code></li>
+        <li><span class="r" style="border-radius: var(--radius-md)" /><code>--radius-md</code></li>
+        <li><span class="r pill" style="border-radius: var(--radius-pill)" /><code>--radius-pill</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Icons</h2>
+      <p class="note">Hugeicons, rounded stroke, to match the pill buttons. Icons sit next to labels, never instead of them.</p>
+      <ul class="icons">
+        {
+          iconNames.map((name) => (
+            <li>
+              <Icon name={name} size={24} />
+              <code>{name}</code>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Buttons</h2>
+      <div class="stack">
+        <div class="buttons">
+          <Button href="#" icon="whatsapp">Join On WhatsApp</Button>
+          <Button href="#" variant="secondary" trailing="arrowRight">See Next Event</Button>
+          <Button href="#" variant="quiet" trailing="arrowRight">All Events</Button>
+          <Button variant="danger">Remove</Button>
+          <Button disabled>Event Full</Button>
+        </div>
+        <div class="buttons">
+          <Button href="#" size="sm">Join The Group</Button>
+          <Button href="#" size="sm" variant="secondary" trailing="external">RSVP</Button>
+          <Button href="#" size="sm" variant="quiet" icon="calendarAdd">Add To Calendar</Button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tags And Tabs</h2>
+      <div class="stack">
+        <div class="buttons">
+          <Tag tone="brand">Upcoming</Tag>
+          <Tag>Ended</Tag>
+          <Tag icon="online">Online</Tag>
+          <Tag icon="location">In Person</Tag>
+          <Tag tone="success">You're In</Tag>
+          <Tag tone="danger">Cancelled</Tag>
+        </div>
+        <Tabs
+          label="Event list"
+          tabs={[
+            { label: 'Upcoming', href: '#tabs', count: upcoming.length, active: true },
+            { label: 'Past', href: '#tabs', count: past.length },
+          ]}
+        />
+      </div>
+    </section>
+
+    <section>
+      <h2>Next Event</h2>
+      {
+        next ? (
+          <NextEvent event={next} />
+        ) : (
+          <Notice title="No event on the calendar yet.">Follow us on Meetup to hear about the next one first.</Notice>
+        )
+      }
+    </section>
+
+    <section>
+      <h2>Event Board</h2>
+      <p class="note">The front page's main element: the next event with its countdown, then past sessions with attendance.</p>
+      <EventBoard next={next} past={past} />
+    </section>
+
+    <section>
+      <h2>Event Rows</h2>
+      <ul class="rows">
+        {[...upcoming, ...past].map((event) => <EventRow event={event} now={now} />)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Empty And Error States</h2>
+      <div class="stack">
+        <Notice title="Nothing scheduled right now.">
+          Past events are below. New ones land on Meetup and the WhatsApp group first.
+          <Button slot="action" href="#" size="sm" variant="secondary" trailing="external">Follow On Meetup</Button>
+        </Notice>
+        <Notice tone="danger" title="This page doesn't exist.">
+          The link may be old or mistyped. Nothing else on the site has changed.
+          <Button slot="action" href="/" size="sm" variant="secondary">Go Home</Button>
+        </Notice>
+      </div>
+      <p class="note">
+        No loading states: every page is pre-built HTML, so there is nothing to wait for. No form fields: membership uses the
+        Google Form.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-theme]');
+  const read = () => {
+    try {
+      return localStorage.getItem('theme') ?? 'auto';
+    } catch {
+      return 'auto';
+    }
+  };
+  const apply = (value: string) => {
+    if (value === 'auto') delete root.dataset.theme;
+    else root.dataset.theme = value;
+    try {
+      if (value === 'auto') localStorage.removeItem('theme');
+      else localStorage.setItem('theme', value);
+    } catch {}
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === value)));
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.setTheme ?? 'auto')));
+  apply(read());
+</script>
+
+<style>
+  .ds {
+    display: grid;
+    gap: var(--space-8);
+    padding-top: var(--space-7);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .eyebrow {
+    color: var(--brand);
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    font-weight: var(--weight-regular);
+  }
+
+  .lede {
+    color: var(--muted);
+  }
+
+  .theme {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: var(--space-3);
+    padding: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+  }
+
+  .theme button {
+    min-height: 38px;
+    padding: 0 var(--space-4);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+  }
+
+  .theme button[aria-pressed='true'] {
+    background: var(--raised);
+    color: var(--ink);
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-4);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+
+  h2 {
+    font-size: var(--text-title);
+  }
+
+  .note {
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+
+  code {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--text-caption);
+    color: var(--muted);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .swatches li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    align-items: center;
+  }
+
+  .chip {
+    grid-row: span 2;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+
+  .use {
+    font-size: var(--text-small);
+    color: var(--ink);
+  }
+
+  .type {
+    display: grid;
+    margin: 0;
+  }
+
+  .type-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: var(--space-5);
+    align-items: baseline;
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .type-row dt {
+    display: grid;
+    gap: 2px;
+    font-size: var(--text-small);
+  }
+
+  .type-row dd {
+    margin: 0;
+    line-height: 1.2;
+    max-width: var(--measure);
+  }
+
+  .spaces {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .spaces li,
+  .radii li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .bar {
+    height: 12px;
+    border-radius: 2px;
+    background: var(--brand);
+  }
+
+  .radii {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+  }
+
+  .r {
+    width: 56px;
+    height: 40px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+  }
+
+  .r.pill {
+    width: 88px;
+  }
+
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .icons li {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+  }
+
+  .stack {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .motion-tokens {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: var(--space-3) var(--space-6);
+    margin: 0;
+  }
+
+  .motion-tokens dd {
+    margin: 0;
+    font-size: var(--text-small);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .mark-tile {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    background: #16191f;
+    color: var(--accent);
+  }
+
+  .rows {
+    border-bottom: 1px solid var(--border);
+  }
+
+  @media (max-width: 560px) {
+    .type-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+</style>

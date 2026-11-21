@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ShowcaseItem from '../../components/ShowcaseItem.astro';
+
+const items = (await getCollection('showcase')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base title="Spotlight" description="Builds, wins and moments from AWS Student Builder Group OAU members.">
+  <section class="top theme-header sbg-grid">
+    <div class="page inner">
+      <h1>Spotlight</h1>
+      <p>What members build, pass and celebrate.</p>
+    </div>
+  </section>
+  <div class="page">
+    <ul class="grid">
+      {items.map((item, i) => <ShowcaseItem item={item} index={i} />)}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .inner {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  h1 {
+    font-size: var(--text-display);
+  }
+
+  .inner p {
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-8) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

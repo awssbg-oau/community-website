@@ -1,0 +1,438 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import AwsLogo from '../components/AwsLogo.astro';
+import AboutIntro from "../components/AboutIntro.astro";
+import Guide from '../components/Guide.astro';
+import SbgMark from '../components/SbgMark.astro';
+import Voices from '../components/Voices.astro';
+import EventPoster from '../components/EventPoster.astro';
+import Icon from '../components/Icon.astro';
+import Lanyard from '../components/Lanyard.astro';
+import LeadCard from '../components/LeadCard.astro';
+import NextUp from '../components/NextUp.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import ViewAll from '../components/ViewAll.astro';
+import StampBook from '../components/StampBook.astro';
+import ShowcaseItem from '../components/ShowcaseItem.astro';
+import site from '../data/site.json';
+import { splitEvents } from '../lib/events';
+
+const now = new Date();
+const all = await getCollection('events');
+const { upcoming, past } = splitEvents(all, now);
+const next = upcoming[0];
+const seats = past.reduce((sum, event) => sum + (event.data.attended ?? 0), 0);
+const team = (await getCollection('team')).sort((a, b) => a.data.order - b.data.order);
+const showcase = (await getCollection('showcase')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const whatsapp = site.links.whatsapp;
+const words = site.headline.split(' ');
+const tones = ['orange', 'ink', 'cream'] as const;
+const nextLine = next
+  ? `${next.data.title} is on ${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(next.data.start)}. Pull up!`
+  : 'Past events are right here.';
+const [captain, ...leads] = team;
+---
+
+<Base>
+  <section class="hero theme-header sbg-grid" data-hero aria-labelledby="hero-title">
+    <div class="cells" aria-hidden="true">
+      <span class="cell c-aws"><AwsLogo height={22} /></span>
+      <span class="cell c-chip"><SbgMark size={28} /></span>
+      <span class="cell c-corner"></span>
+    </div>
+    <div class="page hero-grid">
+      <div class="copy">
+        <h1 id="hero-title" aria-label={site.headline}>
+          {
+            words.map((word) => (
+              <span class="w" aria-hidden="true">{word.replace(/\.$/, '')}{word.endsWith('.') && <span class="dot">.</span>}</span>
+            ))
+          }
+        </h1>
+        <p class="line">
+          OAU's AWS Student Builder Group. Free workshops, labs and hangouts for students who want to build on the cloud.
+        </p>
+        <div class="actions">
+          {
+            whatsapp ? (
+              <Button href={whatsapp} icon="whatsapp" external>
+                Join On WhatsApp
+              </Button>
+            ) : (
+              <Button href={site.links.membershipForm} trailing="external" external>
+                Join The Group
+              </Button>
+            )
+          }
+          <Button href="#events" variant="secondary" trailing="arrowRight">See What We've Done</Button>
+        </div>
+        <p class="facts tnum">
+          <span>{site.stats.members.value} members</span>
+          <span aria-hidden="true">·</span>
+          <span>{all.length} events</span>
+          <span aria-hidden="true">·</span>
+          <span>{seats} seats filled</span>
+        </p>
+      </div>
+      <div class="scene">
+        <Lanyard rope={130} />
+      </div>
+    </div>
+  </section>
+
+  <div class="page">
+    <div class="sections">
+      <section class="block" aria-labelledby="about-title" data-guide="Hi, I’m Chip! Here’s who we are.">
+        <SectionTitle title="About Us" id="about-title" />
+        <AboutIntro />
+      </section>
+
+      <section class="block" aria-labelledby="stamps-title" data-guide="Keep scrolling. I’ll stamp your passport!">
+        <SectionTitle title="What You Get" id="stamps-title" />
+        <StampBook />
+      </section>
+
+      <section class="block" id="events" aria-labelledby="events-title" data-guide={nextLine}>
+        <SectionTitle title="Events" id="events-title" sub="Workshops, calls and hangouts, free for OAU students." />
+        {next && <NextUp event={next} />}
+        {
+          past.length > 0 && (
+            <div class="posters">
+              {past.map((event, i) => (
+                <EventPoster event={event} tone={tones[i % tones.length]} index={i} />
+              ))}
+              <ViewAll href="/events/" title="All Events" note="Every session, past and upcoming." />
+            </div>
+          )
+        }
+      </section>
+
+      <section class="block" aria-labelledby="leads-title" data-guide="Meet the people running things.">
+        <SectionTitle title="Our Team" id="leads-title" sub="Meet the leads running the group this session." />
+        {
+          captain && (
+            <ul class="captain">
+              <LeadCard lead={captain} index={0} featured />
+            </ul>
+          )
+        }
+        <ul class="leads">
+          {leads.map((lead, i) => <LeadCard lead={lead} index={i + 1} />)}
+        </ul>
+      </section>
+
+      <section class="block" aria-labelledby="voices-title" data-guide="Don’t take my word for it. Hear from members.">
+        <Voices>
+          <SectionTitle title="What Our Members Say" id="voices-title" />
+        </Voices>
+      </section>
+
+      <section class="block" aria-labelledby="show-title" data-guide="Tap any spotlight to see the full story.">
+        <SectionTitle title="Spotlight" id="show-title" sub="What members build, pass and celebrate." />
+        <ul class="showcase">
+          {showcase.map((item, i) => <ShowcaseItem item={item} index={i} wide={i === 0} />)}
+          <li class="va-cell"><ViewAll href="/spotlight/" title="All Spotlights" note="Every build, win and moment." /></li>
+        </ul>
+        <p class="share">Built something? Tag{' '}<a href={site.links.x} target="_blank" rel="noopener noreferrer">@awssbgoau</a>{' '}and it lands here.</p>
+      </section>
+
+      <section class="block join" aria-labelledby="join-title" data-guide="Ready? Your passport is waiting.">
+        <SectionTitle title="Get Your Passport" id="join-title" />
+        <div class="join-band" data-reveal>
+          <div class="join-copy">
+            <p class="join-line">Membership is free and open to OAU students.</p>
+            <ol class="steps">
+              <li><span class="n tnum">1</span>Fill the membership form. It takes two minutes.</li>
+              <li>
+                <span class="n tnum">2</span>
+                {whatsapp ? 'Join the WhatsApp group. Every event lands there first.' : 'Follow us on Meetup so you get every event invite.'}
+              </li>
+              <li><span class="n tnum">3</span>Follow us on LinkedIn and X for recaps.</li>
+            </ol>
+            <div class="actions">
+              <Button href={site.links.membershipForm} variant="ink" trailing="external" external>
+                Fill The Membership Form
+              </Button>
+              {
+                whatsapp ? (
+                  <Button href={whatsapp} variant="secondary" icon="whatsapp" external>
+                    Join On WhatsApp
+                  </Button>
+                ) : (
+                  <Button href={site.links.meetup} variant="secondary" trailing="external" external>
+                    Follow On Meetup
+                  </Button>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <Guide />
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cells {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .cell {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+  }
+
+  .c-aws {
+    top: 56px;
+    right: 56px;
+    background: #0f141a;
+    color: #ffffff;
+  }
+
+  .c-chip {
+    top: 112px;
+    right: 112px;
+    background: #ff9900;
+    color: #0f141a;
+  }
+
+  .c-corner {
+    right: 0;
+    bottom: 0;
+    background: #ff9900;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: center;
+    position: relative;
+    min-height: 672px;
+  }
+
+  .copy {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-8);
+  }
+
+  h1 {
+    font-size: clamp(2.75rem, 1.2rem + 4.2vw, 4.75rem);
+    line-height: 0.98;
+  }
+
+  .w {
+    display: inline-block;
+    margin-right: 0.2em;
+  }
+
+  .dot {
+    color: var(--accent);
+  }
+
+  .line {
+    max-width: 34ch;
+    color: var(--muted);
+    font-size: 1.25rem;
+    line-height: 1.45;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--subtle);
+    font-size: var(--text-small);
+  }
+
+  .scene {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .block {
+    display: grid;
+    gap: var(--space-6);
+    padding-top: var(--space-10);
+  }
+
+  .posters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .share a {
+    color: var(--brand);
+    font-weight: var(--weight-medium);
+  }
+
+  .va-cell {
+    display: grid;
+  }
+
+  .captain {
+    display: grid;
+    grid-template-columns: minmax(0, 340px);
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .leads {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .showcase {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .share {
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .join {
+    padding-bottom: var(--space-4);
+  }
+
+  .join-band {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-6);
+    align-items: end;
+    padding: var(--space-7);
+    border-radius: var(--radius-lg);
+    background: #ff9900;
+    color: #0f141a;
+    --brand: #0f141a;
+    --brand-hover: #000000;
+    --brand-soft: #ffb84d;
+    --ink: #0f141a;
+    --background: #ff9900;
+  }
+
+  .join-line {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .steps {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-5) 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps li {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .n {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #0f141a;
+    color: #ff9900;
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+  }
+
+  @media (max-width: 960px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      gap: 0;
+    }
+
+    .copy {
+      order: 2;
+      padding-block: var(--space-5) var(--space-8);
+    }
+
+    .scene {
+      order: 1;
+      height: 430px;
+    }
+
+    .hero-grid {
+      min-height: 0;
+    }
+
+    .c-aws,
+    .c-chip {
+      display: none;
+    }
+
+    .showcase,
+    .posters {
+      grid-template-columns: 1fr 1fr;
+    }
+
+  }
+
+  @media (max-width: 600px) {
+    .block {
+      padding-top: var(--space-9);
+    }
+
+    .showcase,
+    .posters {
+      grid-template-columns: 1fr;
+    }
+
+    .leads {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .join-band {
+      grid-template-columns: 1fr;
+      padding: var(--space-5);
+    }
+
+    .join-band .actions,
+    .join-band .actions :global(.btn) {
+      width: 100%;
+    }
+  }
+</style>
