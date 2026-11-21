@@ -1,0 +1,22 @@
+{
+  "name": "AWS Student Builder Group",
+  "school": "Obafemi Awolowo University",
+  "short": "AWS SBG OAU",
+  "headline": "Learn. Build. Connect. Grow.",
+  "intro": "A student-run group at Obafemi Awolowo University. Free workshops, hands-on labs and a room full of people building on AWS.",
+  "links": {
+    "whatsapp": "",
+    "meetup": "https://www.meetup.com/aws-sbg-at-obafemi-awolowo-university/",
+    "membershipForm": "https://docs.google.com/forms/d/e/1FAIpQLScqPODhL-TtQ21zgnQKgqOt4_7HgvSoXsWxDTgEtw9vJ6-8sw/viewform",
+    "linkedin": "https://www.linkedin.com/company/aws-student-builder-group-oau",
+    "x": "https://x.com/awssbgoau",
+    "email": ""
+  },
+  "stats": {
+    "members": {
+      "value": 126,
+      "label": "Members",
+      "source": "Meetup"
+    }
+  }
+}
