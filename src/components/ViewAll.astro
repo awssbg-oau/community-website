@@ -1,0 +1,67 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  title: string;
+  note: string;
+}
+
+const { href, title, note } = Astro.props;
+---
+
+<a class="view-all" href={href}>
+  <span class="badge"><Icon name="arrowRight" size={26} /></span>
+  <span class="title">{title}</span>
+  <span class="note">{note}</span>
+</a>
+
+<style>
+  .view-all {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-3);
+    min-height: 220px;
+    padding: var(--space-6);
+    border: 2px dashed var(--ink);
+    border-radius: var(--radius-lg);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      border-style var(--dur-base) var(--ease-out);
+  }
+
+  .view-all:hover {
+    border-style: solid;
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  .badge {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #ff9900;
+    color: #0f141a;
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  .view-all:hover .badge {
+    transform: translateX(6px);
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: var(--weight-medium);
+    line-height: 1.1;
+  }
+
+  .note {
+    color: var(--muted);
+  }
+</style>

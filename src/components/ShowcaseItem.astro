@@ -1,0 +1,160 @@
+---
+import Icon from './Icon.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  item: CollectionEntry<'showcase'>;
+  index: number;
+  wide?: boolean;
+}
+
+const { item, index, wide = false } = Astro.props;
+const { title, kind, by, date, stack, photo, sample } = item.data;
+const label = { build: 'Build', win: 'Win', moment: 'Moment' }[kind];
+const icon = ({ build: 'build', win: 'win', moment: 'moment' } as const)[kind];
+const when = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(date);
+---
+
+<li class:list={['item', `kind-${kind}`, { wide }]} data-reveal style={`--i:${index}`}>
+  {photo && <img class="photo" src={photo} alt="" loading="lazy" />}
+  <div class="top">
+    <span class="tag"><Icon name={icon} size={16} />{label}</span>
+    {sample && <span class="sample">Sample</span>}
+  </div>
+  <h3 class="title"><a class="stretch" href={`/spotlight/${item.id}/`}>{title}</a></h3>
+  {stack.length > 0 && <ul class="stack">{stack.map((s) => <li>{s}</li>)}</ul>}
+  <p class="by">{by} · {when}</p>
+  <span class="open">Read the story <Icon name="arrowRight" size={16} /></span>
+</li>
+
+<style>
+  .item {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-height: 220px;
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  .item:hover {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+
+  .wide {
+    grid-column: span 2;
+  }
+
+  .kind-build {
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .kind-win {
+    background: #ff9900;
+    color: #0f141a;
+  }
+
+  .kind-moment {
+    background: #141b25;
+    color: #ffffff;
+  }
+
+  .photo {
+    width: calc(100% + 48px);
+    margin: -24px -24px 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+  }
+
+  .sample {
+    padding: 2px 8px;
+    border: 1px dashed currentColor;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-caption);
+    opacity: 0.8;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    line-height: 1.15;
+    margin-top: auto;
+  }
+
+  .wide .title {
+    font-size: 2.25rem;
+  }
+
+  .title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .stretch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .item:hover .title a {
+    text-decoration: underline;
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack li {
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: var(--raised);
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+  }
+
+  .by {
+    font-size: var(--text-small);
+    opacity: 0.8;
+  }
+
+  .open {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+  }
+
+  @media (max-width: 720px) {
+    .wide {
+      grid-column: auto;
+    }
+
+    .wide .title {
+      font-size: 1.75rem;
+    }
+  }
+</style>

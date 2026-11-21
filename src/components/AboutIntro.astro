@@ -1,0 +1,220 @@
+---
+import Icon from './Icon.astro';
+import Chip from './Chip.astro';
+
+const pillars = [
+  {
+    icon: 'rocket' as const,
+    title: 'Our Mission',
+    text: 'Give every OAU student a hands-on way into cloud: workshops that start from zero, labs that end in a live deploy, and people to build with.',
+  },
+  {
+    icon: 'online' as const,
+    title: 'Our Vision',
+    text: 'A campus where shipping on AWS is normal, and students leave Ife with real projects, certifications and a community that keeps them building.',
+  },
+];
+
+const frames = [
+  { big: '38', line: 'joined the kickoff call', meta: 'Introducing AWS SBG OAU · 17 Oct 2026' },
+  { big: '17', line: 'set up their AWS credits', meta: 'AWS Builder Center 101 · 31 Oct 2026' },
+];
+---
+
+<div class="about">
+  <div class="intro" data-reveal>
+    <h3><span>Introducing</span> AWS Student Builder Group, OAU</h3>
+    <div class="copy">
+      <p>
+        AWS Student Builder Group at Obafemi Awolowo University is a student-led community for anyone at Ife who wants to
+        learn cloud by building on Amazon Web Services.
+      </p>
+      <p>
+        We run workshops, hands-on labs, talks and hangouts, online and on campus. Membership is free, and no experience
+        is needed.
+      </p>
+    </div>
+  </div>
+
+  <div class="pillars">
+    {
+      pillars.map((p) => (
+        <article class="pillar" data-reveal>
+          <span class="badge">
+            <Icon name={p.icon} size={26} />
+          </span>
+          <h4>{p.title}</h4>
+          <p>{p.text}</p>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="frames">
+    {
+      frames.map((f, i) => (
+        <figure class="frame theme-header sbg-grid" data-reveal>
+          <span class="cell c1" aria-hidden="true" />
+          <span class="cell c2" aria-hidden="true" />
+          <Chip pose={i === 0 ? 'wave' : 'cheer'} size={92} class="frame-chip" />
+          <p class="big">{f.big}</p>
+          <p class="line">{f.line}</p>
+          <figcaption>{f.meta}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .about {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+  }
+
+  h3 span {
+    color: var(--brand);
+  }
+
+  .copy {
+    display: grid;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    padding-top: 0.4rem;
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .pillar {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--raised);
+    box-shadow: 0 18px 40px -28px rgb(15 20 26 / 0.35);
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .pillar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 26px 50px -28px rgb(15 20 26 / 0.45);
+  }
+
+  .badge {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.75rem;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  h4 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+  }
+
+  .pillar p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .frames {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .frame {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    align-content: end;
+    gap: 0.25rem;
+    min-height: 300px;
+    margin: 0;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border-radius: var(--radius-lg);
+  }
+
+  .cell {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+  }
+
+  .c1 {
+    top: 0;
+    right: 0;
+    background: var(--accent);
+  }
+
+  .c2 {
+    top: 56px;
+    right: 112px;
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .frame :global(.frame-chip) {
+    position: absolute;
+    top: 1.25rem;
+    left: 1.25rem;
+  }
+
+  .big {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 3rem + 4vw, 6.5rem);
+    line-height: 0.9;
+    color: var(--accent);
+  }
+
+  .line {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  figcaption {
+    color: var(--subtle);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 760px) {
+    .intro,
+    .pillars,
+    .frames {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .frame {
+      min-height: 250px;
+    }
+  }
+</style>

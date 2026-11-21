@@ -1,0 +1,34 @@
+---
+interface Props {
+  title: string;
+  id?: string;
+  sub?: string;
+}
+
+const { title, id, sub } = Astro.props;
+---
+
+<header class="title">
+  <h2 id={id}>{title}</h2>
+  {sub && <p>{sub}</p>}
+</header>
+
+<style>
+  .title {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    text-align: center;
+  }
+
+  h2 {
+    font-size: var(--text-display);
+    line-height: 1.02;
+  }
+
+  p {
+    max-width: 44ch;
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+</style>

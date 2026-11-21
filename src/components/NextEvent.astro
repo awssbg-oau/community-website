@@ -1,0 +1,115 @@
+---
+import Button from './Button.astro';
+import { longDate, timeRange, type EventEntry } from '../lib/events';
+
+interface Props {
+  event: EventEntry;
+}
+
+const { event } = Astro.props;
+const { title, start, end, venue, meetup } = event.data;
+---
+
+<section class="band" aria-labelledby={`next-${event.id}`}>
+  <div class="inner">
+    <div class="copy">
+      <p class="label tnum">Next Up · {longDate(start)} · {timeRange(start, end)}</p>
+      <h2 class="title" id={`next-${event.id}`}>{title}</h2>
+      <p class="venue">{venue}</p>
+      <p class="countdown tnum" data-countdown={start.toISOString()} data-end={end?.toISOString()} hidden>
+        <span class="countdown-label">Starts in</span>
+        <span class="countdown-out" data-countdown-out></span>
+      </p>
+    </div>
+    <div class="actions">
+      <Button href={meetup} trailing="external" external>RSVP On Meetup</Button>
+      <Button href={`/events/${event.id}/`} variant="inverse">Event Details</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .band {
+    background: var(--band);
+    color: var(--on-band);
+    border-radius: var(--radius-md);
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-6);
+  }
+
+  .copy {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+    opacity: 0.85;
+  }
+
+  .title {
+    font-size: var(--text-title);
+  }
+
+  .venue {
+    opacity: 0.85;
+  }
+
+  .countdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .countdown[hidden] {
+    display: none;
+  }
+
+  .countdown-label {
+    font-size: var(--text-small);
+    opacity: 0.85;
+  }
+
+  .countdown-out {
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: var(--weight-regular);
+  }
+
+  .countdown-out :global(small) {
+    margin-left: 1px;
+    font-size: var(--text-small);
+    opacity: 0.75;
+  }
+
+  .countdown[data-state='live'] .countdown-label {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 560px) {
+    .inner {
+      padding: var(--space-5);
+    }
+
+    .actions,
+    .actions :global(.btn) {
+      width: 100%;
+    }
+  }
+</style>

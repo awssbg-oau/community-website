@@ -1,0 +1,318 @@
+---
+import { getCollection } from 'astro:content';
+import SbgMark from './SbgMark.astro';
+
+const MIN_FOR_SCROLL = 3;
+const voices = await getCollection('voices');
+const pinned = voices.length >= MIN_FOR_SCROLL;
+const tones = ['cream', 'blue', 'white'];
+const holes = (w: number, h: number, step = 10) => {
+  const out: { x: number; y: number }[] = [];
+  for (let x = step / 2; x < w; x += step) out.push({ x, y: 0 }, { x, y: h });
+  for (let y = step / 2; y < h; y += step) out.push({ x: 0, y }, { x: w, y });
+  return out;
+};
+const perf = holes(84, 100);
+---
+
+<div class:list={['voices', { pinned }]} data-voices={pinned ? 'pin' : 'swipe'}>
+  <div class="stick" data-voices-stick>
+    <div class="head"><slot /></div>
+    <ul class="track" data-voices-track>
+      {
+        voices.map((v, i) => (
+          <li class:list={['card', `tone-${tones[i % tones.length]}`]} style={`--tilt:${i % 2 ? 1.2 : -1.2}deg`}>
+            <div class="message">
+              <p class="greeting">Greetings from AWS SBG OAU,</p>
+              <blockquote>{v.data.quote}</blockquote>
+            </div>
+            <div class="address">
+              <div class="corner">
+                <svg class="postmark" viewBox="0 0 120 70" aria-hidden="true">
+                  <circle cx="35" cy="35" r="30" />
+                  <circle cx="35" cy="35" r="22" />
+                  <text x="35" y="38" text-anchor="middle">OAU</text>
+                  <path d="M70 20 q8 -6 16 0 t16 0 t16 0" />
+                  <path d="M70 35 q8 -6 16 0 t16 0 t16 0" />
+                  <path d="M70 50 q8 -6 16 0 t16 0 t16 0" />
+                </svg>
+                <svg class="stamp" viewBox="-6 -6 96 112" aria-hidden="true">
+                  <rect x="0" y="0" width="84" height="100" class="paper" />
+                  {perf.map((h) => <circle cx={h.x} cy={h.y} r="3.6" class="hole" />)}
+                  <rect x="8" y="8" width="68" height="84" class="face" />
+                  <foreignObject x="18" y="22" width="48" height="48">
+                    <SbgMark size={48} />
+                  </foreignObject>
+                  <text x="42" y="84" text-anchor="middle" class="value">SBG</text>
+                </svg>
+              </div>
+              <div class="lines">
+                <p class="name">{v.data.name}</p>
+                <p class="detail">{v.data.detail}</p>
+                <p class="detail">Obafemi Awolowo University, Ile-Ife</p>
+              </div>
+              {v.data.sample && <span class="sample">Sample</span>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('[data-voices="pin"]').forEach((root) => {
+    const stick = root.querySelector<HTMLElement>('[data-voices-stick]');
+    const track = root.querySelector<HTMLElement>('[data-voices-track]');
+    if (!stick || !track) return;
+    if (reduce) {
+      root.classList.remove('pinned');
+      return;
+    }
+    let distance = 0;
+    const layout = () => {
+      const cs = getComputedStyle(stick);
+      const inner = stick.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      distance = Math.max(0, track.scrollWidth - inner);
+      root.style.height = `${stick.offsetHeight + distance}px`;
+      move();
+    };
+    const move = () => {
+      const top = root.getBoundingClientRect().top - (parseFloat(getComputedStyle(stick).top) || 0);
+      const p = distance ? Math.min(1, Math.max(0, -top / distance)) : 0;
+      track.style.transform = `translate3d(${(-p * distance).toFixed(1)}px, 0, 0)`;
+    };
+    let frame = 0;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!frame)
+          frame = requestAnimationFrame(() => {
+            frame = 0;
+            move();
+          });
+      },
+      { passive: true },
+    );
+    window.addEventListener('resize', layout);
+    window.addEventListener('load', layout);
+    layout();
+  });
+</script>
+
+<style>
+  .voices {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .voices.pinned {
+    position: relative;
+  }
+
+  .stick {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: var(--space-6);
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding: var(--space-5) max(var(--gutter), calc((100vw - var(--page)) / 2)) var(--space-6);
+    overflow: hidden;
+  }
+
+  .pinned .stick {
+    position: sticky;
+    top: 64px;
+    min-height: calc(100svh - 64px);
+  }
+
+  .voices:not(.pinned) .stick {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .track {
+    display: flex;
+    gap: var(--space-6);
+    width: max-content;
+    margin: 0;
+    padding: 0 var(--space-2);
+    list-style: none;
+    will-change: transform;
+  }
+
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    width: min(640px, 82vw);
+    min-height: 340px;
+    border: 2px solid #0f141a;
+    border-radius: 14px;
+    color: #0f141a;
+    transform: rotate(var(--tilt));
+    transition: transform var(--dur-base) var(--ease-spring);
+    scroll-snap-align: center;
+    --paper: #fffaf1;
+  }
+
+  .card:hover {
+    transform: rotate(0deg) translateY(-4px);
+  }
+
+  .tone-cream {
+    background: #fffaf1;
+    --paper: #fffaf1;
+  }
+
+  .tone-blue {
+    background: #232f3e;
+    color: #ffffff;
+    --paper: #232f3e;
+  }
+
+  .tone-white {
+    background: #ffffff;
+    --paper: #ffffff;
+  }
+
+  .message {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border-right: 2px dashed currentColor;
+  }
+
+  .greeting {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.32;
+  }
+
+  .address {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: var(--space-4);
+    padding: var(--space-5);
+  }
+
+  .corner {
+    display: flex;
+    justify-content: flex-end;
+    align-items: start;
+    gap: var(--space-2);
+  }
+
+  .postmark {
+    width: 110px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    opacity: 0.55;
+    transform: rotate(-8deg) translateY(10px);
+  }
+
+  .postmark text {
+    fill: currentColor;
+    stroke: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .stamp {
+    width: 78px;
+    transform: rotate(4deg);
+  }
+
+  .paper {
+    fill: #ff9900;
+  }
+
+  .hole {
+    fill: var(--paper);
+  }
+
+  .face {
+    fill: none;
+    stroke: #0f141a;
+    stroke-width: 2;
+  }
+
+  .stamp :global(svg) {
+    color: #0f141a;
+  }
+
+  .value {
+    fill: #0f141a;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .lines {
+    display: grid;
+    align-content: end;
+    gap: var(--space-2);
+  }
+
+  .lines p {
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid currentColor;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: var(--weight-medium);
+  }
+
+  .detail {
+    font-size: var(--text-small);
+    opacity: 0.85;
+  }
+
+  .sample {
+    position: absolute;
+    left: var(--space-5);
+    top: var(--space-5);
+    padding: 2px 8px;
+    border: 1px dashed currentColor;
+    border-radius: 999px;
+    font-size: var(--text-caption);
+  }
+
+  @media (max-width: 720px) {
+    .card {
+      grid-template-columns: 1fr;
+      width: 82vw;
+    }
+
+    .message {
+      border-right: 0;
+      border-bottom: 2px dashed currentColor;
+      padding: var(--space-5);
+    }
+
+    blockquote {
+      font-size: 1.125rem;
+    }
+
+    .corner {
+      justify-content: space-between;
+    }
+
+    .pinned .stick {
+      top: 72px;
+    }
+  }
+</style>

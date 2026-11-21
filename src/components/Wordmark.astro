@@ -1,0 +1,92 @@
+---
+import AwsLogo from './AwsLogo.astro';
+import SbgMark from './SbgMark.astro';
+import site from '../data/site.json';
+
+interface Props {
+  size?: 'header' | 'large';
+}
+
+const { size = 'header' } = Astro.props;
+---
+
+<a class:list={['lockup', `lockup-${size}`]} href="/" aria-label={`${site.name} at ${site.school}: home`}>
+  <AwsLogo height={size === 'large' ? 34 : 26} class="lockup-aws" />
+  <span class="divider" aria-hidden="true"></span>
+  <SbgMark size={size === 'large' ? 34 : 26} />
+  <span class="text">
+    <span class="name">AWS Student Builder Group</span>
+    <span class="school">
+      <span class="full">at {site.school}</span>
+      <span class="short">at OAU</span>
+    </span>
+  </span>
+</a>
+
+<style>
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .lockup:hover {
+    color: var(--ink);
+  }
+
+  .divider {
+    width: 1px;
+    align-self: stretch;
+    margin-block: 6px;
+    background: var(--border-strong);
+  }
+
+  .text {
+    display: grid;
+    line-height: 1.15;
+  }
+
+  .name {
+    font-size: 0.9375rem;
+    font-weight: var(--weight-medium);
+  }
+
+  .school {
+    font-size: var(--text-caption);
+    color: var(--muted);
+  }
+
+  .short {
+    display: none;
+  }
+
+  .lockup-large .name {
+    font-size: 1.0625rem;
+  }
+
+  .lockup-large .school {
+    font-size: var(--text-small);
+  }
+
+  @media (max-width: 640px) {
+    .lockup-header :global(.lockup-aws),
+    .lockup-header .divider {
+      display: none;
+    }
+
+    .lockup-header .full {
+      display: none;
+    }
+
+    .lockup-header .short {
+      display: inline;
+    }
+
+    .lockup-header .name {
+      font-size: var(--text-small);
+    }
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+import Button from './Button.astro';
+import { longDate, timeRange, type EventEntry } from '../lib/events';
+
+interface Props {
+  event: EventEntry;
+}
+
+const { event } = Astro.props;
+const { title, start, end, venue, venueDetail, meetup, audience } = event.data;
+const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit', timeZone: 'Africa/Lagos' }).format(start);
+const month = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'Africa/Lagos' }).format(start).toUpperCase();
+---
+
+<article class="next" data-reveal aria-labelledby={`next-${event.id}`}>
+  <div class="date tnum" aria-hidden="true">
+    <span class="d">{day}</span>
+    <span class="m">{month}</span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">Next Up</p>
+    <h3 id={`next-${event.id}`}><a href={`/events/${event.id}/`}>{title}</a></h3>
+    <p class="meta tnum">{longDate(start)} · {timeRange(start, end)}</p>
+    <p class="meta">{venue}{venueDetail && <span class="detail">, {venueDetail}</span>}</p>
+    {audience && <p class="aud">{audience}</p>}
+    <p class="countdown tnum" data-countdown={start.toISOString()} data-end={end?.toISOString()} hidden>
+      <span class="visually-hidden">Starts in</span>
+      <span data-countdown-out></span>
+    </p>
+    <div class="actions">
+      <Button href={meetup} trailing="external" external>RSVP On Meetup</Button>
+    </div>
+  </div>
+</article>
+
+<style>
+  .next {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-6);
+    padding: var(--space-6);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+  }
+
+  .date {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    width: 120px;
+    height: 132px;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: #0f141a;
+    font-family: var(--font-display);
+  }
+
+  .d {
+    font-size: 3.5rem;
+    line-height: 1;
+  }
+
+  .m {
+    font-size: 1.125rem;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .eyebrow {
+    color: var(--brand);
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    text-transform: uppercase;
+  }
+
+  h3 {
+    font-size: var(--text-title);
+  }
+
+  h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .meta {
+    color: var(--muted);
+  }
+
+  .detail {
+    color: var(--subtle);
+  }
+
+  .aud {
+    color: var(--subtle);
+    font-size: var(--text-small);
+  }
+
+  .countdown {
+    margin-top: var(--space-3);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .countdown[hidden] {
+    display: none;
+  }
+
+  .countdown :global(small) {
+    margin: 0 4px 0 1px;
+    color: var(--subtle);
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+  }
+
+  .actions {
+    margin-top: var(--space-4);
+  }
+
+  @media (max-width: 720px) {
+    .next {
+      grid-template-columns: 1fr;
+      padding: var(--space-5);
+      gap: var(--space-5);
+    }
+
+    .date {
+      width: 96px;
+      height: 104px;
+    }
+
+    .d {
+      font-size: 2.75rem;
+    }
+
+
+  }
+</style>

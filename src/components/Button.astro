@@ -1,0 +1,178 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'quiet' | 'danger' | 'inverse' | 'ink';
+  size?: 'md' | 'sm';
+  icon?: IconName;
+  trailing?: IconName;
+  external?: boolean;
+  disabled?: boolean;
+  type?: 'button' | 'submit';
+  class?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  trailing,
+  external = false,
+  disabled = false,
+  type = 'button',
+  class: className,
+} = Astro.props;
+
+const classes = ['btn', `btn-${variant}`, `btn-${size}`, className];
+const iconSize = size === 'sm' ? 16 : 18;
+---
+
+{
+  href && !disabled ? (
+    <a
+      class:list={classes}
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
+      {icon && <Icon name={icon} size={iconSize} />}
+      <span><slot /></span>
+      {trailing && <Icon name={trailing} size={iconSize} class="trail" />}
+      {external && <span class="visually-hidden">(opens in a new tab)</span>}
+    </a>
+  ) : (
+    <button class:list={classes} type={type} disabled={disabled}>
+      {icon && <Icon name={icon} size={iconSize} />}
+      <span><slot /></span>
+      {trailing && <Icon name={trailing} size={iconSize} class="trail" />}
+    </button>
+  )
+}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: 0 var(--space-5);
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: var(--weight-medium);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease,
+      transform 120ms ease;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 0 var(--space-4);
+    font-size: var(--text-small);
+    position: relative;
+  }
+
+  .btn-sm::after {
+    content: '';
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .btn :global(.trail) {
+    transition: transform 140ms ease;
+  }
+
+  .btn:hover :global(.trail) {
+    transform: translateX(2px);
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  a.btn[target='_blank']:hover :global(.trail) {
+    transform: translate(2px, -2px);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    color: var(--on-accent);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .btn-secondary:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--background);
+  }
+
+  .btn-ink {
+    background: #0f141a;
+    color: #ffffff;
+  }
+
+  .btn-ink:hover {
+    background: #2a3240;
+    color: #ffffff;
+  }
+
+  .btn-quiet {
+    background: transparent;
+    color: var(--brand);
+    padding-inline: var(--space-3);
+  }
+
+  .btn-quiet:hover {
+    background: var(--brand-soft);
+    color: var(--brand-hover);
+  }
+
+  .btn-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  .btn-danger:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .btn-inverse {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--on-band) 40%, transparent);
+    color: var(--on-band);
+  }
+
+  .btn-inverse:hover {
+    border-color: var(--on-band);
+    color: var(--on-band);
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--subtle);
+  }
+</style>

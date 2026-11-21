@@ -1,0 +1,161 @@
+---
+import Icon from './Icon.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  lead: CollectionEntry<'team'>;
+  index: number;
+  featured?: boolean;
+}
+
+const { lead, index, featured = false } = Astro.props;
+const { name, role, photo, linkedin, x, instagram, github, sample } = lead.data;
+const initials =
+  name === 'Name Coming Soon'
+    ? role
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : name
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+const socials = (
+  [
+    { href: x, icon: 'x', label: 'X' },
+    { href: instagram, icon: 'instagram', label: 'Instagram' },
+    { href: linkedin, icon: 'linkedin', label: 'LinkedIn' },
+    { href: github, icon: 'github', label: 'GitHub' },
+  ] as { href?: string; icon: IconName; label: string }[]
+).filter((s) => s.href);
+---
+
+<li class:list={['lead', { featured }]} data-reveal style={`--i:${index}`}>
+  <div class="photo sbg-grid-light">
+    {photo ? <img src={photo} alt={name} loading="lazy" /> : <span class="initials">{initials}</span>}
+    {sample && <span class="sample">Sample</span>}
+  </div>
+  <div class="pill">
+    <p class="name">{name}</p>
+    <p class="role">{role}</p>
+  </div>
+  {
+    socials.length > 0 && (
+      <ul class="socials">
+        {socials.map((s) => (
+          <li>
+            <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${name} on ${s.label}`}>
+              <Icon name={s.icon} size={18} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</li>
+
+<style>
+  .lead {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
+    background: var(--raised);
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  .lead:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+  }
+
+  .photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    border-radius: calc(var(--radius-lg) - 8px);
+    background-color: var(--accent-soft);
+    overflow: hidden;
+  }
+
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .initials {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    color: #a85400;
+  }
+
+  .featured .initials {
+    font-size: 4rem;
+  }
+
+  .sample {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 2px 8px;
+    border: 1px dashed #a85400;
+    border-radius: var(--radius-pill);
+    background: #ffffff;
+    color: #a85400;
+    font-size: var(--text-caption);
+  }
+
+  .pill {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: #ff9900;
+    color: #0f141a;
+    text-align: center;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: var(--weight-medium);
+    line-height: 1.2;
+  }
+
+  .featured .name {
+    font-size: 1.375rem;
+  }
+
+  .role {
+    font-size: var(--text-small);
+  }
+
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .socials a {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    color: var(--ink);
+  }
+
+  .socials a:hover {
+    background: var(--ink);
+    color: var(--background);
+  }
+</style>

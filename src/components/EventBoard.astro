@@ -1,0 +1,291 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { dayOfMonth, monthShort, shortDate, timeRange, type EventEntry } from '../lib/events';
+
+interface Props {
+  next?: EventEntry;
+  past: EventEntry[];
+  allHref?: string;
+}
+
+const { next, past, allHref = '/events/' } = Astro.props;
+const shortDay = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(date);
+---
+
+<section class="board" aria-labelledby="board-title">
+  <header class="board-head">
+    <h2 id="board-title">Events</h2>
+    <a class="all" href={allHref}>
+      <span>All Events</span>
+      <Icon name="arrowRight" size={16} />
+    </a>
+  </header>
+
+  {
+    next ? (
+      <article class="next" aria-labelledby={`next-${next.id}`}>
+        <div class="next-date tnum" aria-hidden="true">
+          <span class="m">{monthShort(next.data.start)}</span>
+          <span class="d">{dayOfMonth(next.data.start)}</span>
+        </div>
+        <div class="next-main">
+          <p class="next-label">Next Up</p>
+          <h3 class="next-title" id={`next-${next.id}`}>
+            <a href={`/events/${next.id}/`}>{next.data.title}</a>
+          </h3>
+          <p class="next-meta tnum">
+            {shortDate(next.data.start)} · {timeRange(next.data.start, next.data.end)} · {next.data.venue}
+          </p>
+        </div>
+        <div class="next-side">
+          <p class="countdown tnum" data-countdown={next.data.start.toISOString()} data-end={next.data.end?.toISOString()} hidden>
+            <span class="visually-hidden">Starts in</span>
+            <span data-countdown-out />
+          </p>
+          <Button href={next.data.meetup} trailing="external" external>
+            RSVP
+          </Button>
+        </div>
+      </article>
+    ) : (
+      <p class="none">No event on the calendar yet. New ones land on Meetup first.</p>
+    )
+  }
+
+  {
+    past.length > 0 && (
+      <div class="past">
+        <div class="past-head">
+          <span>Past Sessions</span>
+          <span>Attended</span>
+        </div>
+        <ul>
+          {past.map((event) => (
+            <li>
+              <span class="p-date tnum">{shortDay(event.data.start)}</span>
+              <span class="p-main">
+                <a href={`/events/${event.id}/`} class="p-title">
+                  {event.data.title}
+                </a>
+                <span class="p-mode">
+                  <Icon name={event.data.mode === 'online' ? 'online' : 'location'} size={14} />
+                  {event.data.venue}
+                </span>
+              </span>
+              <span class="p-count tnum">{event.data.attended ?? '–'}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .board {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--raised);
+    overflow: hidden;
+  }
+
+  .board-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .board-head h2 {
+    font-size: var(--text-heading);
+  }
+
+  .next {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: var(--space-5);
+    align-items: center;
+    padding: var(--space-5);
+    background: var(--surface);
+  }
+
+  .next-date {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: var(--space-3) 0;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .m {
+    font-size: var(--text-caption);
+    font-weight: var(--weight-medium);
+  }
+
+  .d {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .next-main {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .next-label {
+    color: var(--brand);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-medium);
+  }
+
+  .next-title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .next-title a,
+  .p-title {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .next-title a:hover,
+  .p-title:hover {
+    color: var(--brand);
+    text-decoration: underline;
+  }
+
+  .next-meta {
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .next-side {
+    display: grid;
+    justify-items: end;
+    gap: var(--space-3);
+  }
+
+  .countdown {
+    font-size: 1.125rem;
+    white-space: nowrap;
+  }
+
+  .countdown[hidden] {
+    display: none;
+  }
+
+  .countdown :global(small) {
+    margin-left: 1px;
+    color: var(--muted);
+    font-size: var(--text-caption);
+  }
+
+  .none {
+    padding: var(--space-5);
+    color: var(--muted);
+  }
+
+  .past {
+    padding: var(--space-4) var(--space-5) var(--space-3);
+  }
+
+  .past-head {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: var(--space-2);
+    color: var(--subtle);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-medium);
+  }
+
+  ul {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: var(--space-5);
+    align-items: center;
+    padding: var(--space-3) 0;
+  }
+
+  .p-date {
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .p-main {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .p-title {
+    font-weight: var(--weight-medium);
+  }
+
+  .p-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .p-count {
+    font-size: 1.125rem;
+  }
+
+  .all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    color: var(--brand);
+    font-size: var(--text-small);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+
+  .all:hover {
+    color: var(--brand-hover);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 560px) {
+    .next {
+      grid-template-columns: 56px minmax(0, 1fr);
+      gap: var(--space-4);
+      padding: var(--space-4);
+    }
+
+    .next-side {
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      justify-items: start;
+    }
+
+    .past {
+      padding-inline: var(--space-4);
+    }
+
+    li {
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: var(--space-4);
+    }
+  }
+</style>

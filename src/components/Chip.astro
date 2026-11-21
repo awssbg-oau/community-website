@@ -1,0 +1,312 @@
+---
+interface Props {
+  pose?: 'idle' | 'wave' | 'point' | 'cheer';
+  tone?: 'orange' | 'ink';
+  size?: number;
+  class?: string;
+}
+
+const { pose = 'idle', tone = 'orange', size = 120, class: className } = Astro.props;
+const grid = [
+  '..#.#.#..',
+  '..#####..',
+  '##.....##',
+  '.#.....#.',
+  '##.....##',
+  '.#.....#.',
+  '##.....##',
+  '..#####..',
+  '..#.#.#..',
+];
+const C = 12;
+const OX = 16;
+const OY = 8;
+const cells = grid.flatMap((row, r) =>
+  [...row].flatMap((ch, c) => (ch === '#' ? [{ x: OX + c * C, y: OY + r * C }] : [])),
+);
+---
+
+<svg
+  class:list={['chip', `pose-${pose}`, `tone-${tone}`, className]}
+  data-chip
+  width={size}
+  height={Math.round((size * 160) / 140)}
+  viewBox="0 0 140 160"
+  aria-hidden="true"
+>
+  <g class="chip-body">
+    <g class="arm arm-l">
+      <rect x="-6" y="70" width="30" height="9" rx="4.5" />
+      <circle cx="-6" cy="74.5" r="6.5" />
+    </g>
+    <g class="arm arm-r">
+      <rect x="116" y="70" width="30" height="9" rx="4.5" />
+      <circle cx="146" cy="74.5" r="6.5" />
+    </g>
+    <g class="limb leg-l">
+      <rect class="leg" x="50" y="114" width="11" height="24" rx="5" />
+      <rect class="foot" x="43" y="134" width="22" height="9" rx="4.5" />
+    </g>
+    <g class="limb leg-r">
+      <rect class="leg" x="79" y="114" width="11" height="24" rx="5" />
+      <rect class="foot" x="75" y="134" width="22" height="9" rx="4.5" />
+    </g>
+    {cells.map((cell) => <rect class="cell" x={cell.x - 0.3} y={cell.y - 0.3} width={C + 0.6} height={C + 0.6} />)}
+    <rect class="screen" x="40" y="32" width="60" height="60" rx="6" />
+    <g class="eyes">
+      <rect class="eye" x="51" y="47" width="13" height="17" rx="4" />
+      <rect class="eye" x="76" y="47" width="13" height="17" rx="4" />
+      <g class="pupils" data-pupils>
+        <rect class="pupil" x="55" y="52" width="6" height="8" rx="2" />
+        <rect class="pupil" x="80" y="52" width="6" height="8" rx="2" />
+      </g>
+    </g>
+    <path class="mouth" d="M59 75 Q70 84 81 75" />
+  </g>
+</svg>
+
+<style>
+  .chip {
+    display: block;
+    overflow: visible;
+  }
+
+  .cell,
+  .arm rect,
+  .arm circle,
+  .leg {
+    fill: #ff9900;
+  }
+
+  .foot {
+    fill: #e07b00;
+  }
+
+  .screen {
+    fill: #141b25;
+  }
+
+  .eye {
+    fill: #ffffff;
+  }
+
+  .pupil {
+    fill: #141b25;
+  }
+
+  .mouth {
+    fill: none;
+    stroke: #ff9900;
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+
+  .tone-ink .cell,
+  .tone-ink .arm rect,
+  .tone-ink .arm circle,
+  .tone-ink .leg,
+  .tone-ink .mouth {
+    fill: #0f141a;
+  }
+
+  .tone-ink .foot {
+    fill: #000000;
+  }
+
+  .tone-ink .screen {
+    fill: #ffffff;
+  }
+
+  .tone-ink .eye {
+    fill: #0f141a;
+  }
+
+  .tone-ink .pupil {
+    fill: #ffffff;
+  }
+
+  .tone-ink .mouth {
+    fill: none;
+    stroke: #0f141a;
+  }
+
+  .arm-l {
+    transform-origin: 24px 74.5px;
+    transform: rotate(-55deg);
+  }
+
+  .arm-r {
+    transform-origin: 116px 74.5px;
+    transform: rotate(55deg);
+  }
+
+  .pose-point .arm-r {
+    transform: rotate(-8deg);
+  }
+
+  .pose-wave .arm-r {
+    transform: rotate(-62deg);
+  }
+
+  .pose-cheer .arm-l {
+    transform: rotate(52deg);
+  }
+
+  .pose-cheer .arm-r {
+    transform: rotate(-52deg);
+  }
+
+  .eyes {
+    transform-origin: 70px 55px;
+  }
+
+  .pupils {
+    transition: transform 120ms linear;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .eyes {
+      animation: blink 4.6s infinite;
+    }
+
+    .pose-wave .arm-r {
+      animation: wave 1.6s var(--ease-out) infinite;
+    }
+
+    .pose-cheer .chip-body {
+      animation: hop 1.4s var(--ease-out) infinite;
+    }
+
+    .chip-body {
+      transform-origin: 70px 140px;
+    }
+
+    .pose-idle .chip-body,
+    .pose-point .chip-body,
+    .pose-wave .chip-body {
+      animation: breathe 3.2s ease-in-out infinite;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.walking) .leg-l {
+      animation: step 0.42s ease-in-out infinite;
+    }
+
+    :global(.walking) .leg-r {
+      animation: step 0.42s ease-in-out infinite reverse;
+    }
+
+    :global(.walking) .arm-l {
+      animation: swing-l 0.42s ease-in-out infinite;
+    }
+
+    :global(.walking) .arm-r {
+      animation: swing-r 0.42s ease-in-out infinite;
+    }
+
+    :global(.walking) .chip-body {
+      animation: bob 0.21s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes step {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  @keyframes swing-l {
+    0%,
+    100% {
+      transform: rotate(-40deg);
+    }
+
+    50% {
+      transform: rotate(-70deg);
+    }
+  }
+
+  @keyframes swing-r {
+    0%,
+    100% {
+      transform: rotate(70deg);
+    }
+
+    50% {
+      transform: rotate(40deg);
+    }
+  }
+
+  @keyframes bob {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(-3px);
+    }
+  }
+
+  @keyframes blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+
+    95% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  @keyframes wave {
+    0%,
+    100% {
+      transform: rotate(-62deg);
+    }
+
+    25% {
+      transform: rotate(-88deg);
+    }
+
+    50% {
+      transform: rotate(-58deg);
+    }
+
+    75% {
+      transform: rotate(-84deg);
+    }
+  }
+
+  @keyframes hop {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    35% {
+      transform: translateY(-10px);
+    }
+
+    55% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+
+    50% {
+      transform: scaleY(1.02);
+    }
+  }
+</style>

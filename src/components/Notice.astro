@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  tone?: 'neutral' | 'danger';
+  icon?: IconName;
+  title: string;
+}
+
+const { tone = 'neutral', icon = tone === 'danger' ? 'alert' : 'calendar', title } = Astro.props;
+---
+
+<div class:list={['notice', `notice-${tone}`]} role={tone === 'danger' ? 'alert' : undefined}>
+  <Icon name={icon} size={20} class="notice-icon" />
+  <div class="body">
+    <p class="title">{title}</p>
+    <div class="text"><slot /></div>
+    {Astro.slots.has('action') && <div class="action"><slot name="action" /></div>}
+  </div>
+</div>
+
+<style>
+  .notice {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  .notice-danger {
+    background: var(--danger-soft);
+  }
+
+  .notice :global(.notice-icon) {
+    margin-top: 2px;
+    color: var(--muted);
+  }
+
+  .notice-danger :global(.notice-icon) {
+    color: var(--danger);
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .title {
+    font-weight: var(--weight-medium);
+  }
+
+  .text {
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+
+  .action {
+    margin-top: var(--space-2);
+  }
+</style>

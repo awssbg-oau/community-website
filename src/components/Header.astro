@@ -1,0 +1,126 @@
+---
+import Button from './Button.astro';
+import Wordmark from './Wordmark.astro';
+import site from '../data/site.json';
+
+const path = Astro.url.pathname;
+const nav = [
+  { label: 'Events', href: '/events/' },
+  { label: 'Join', href: '/join/', mobileOnly: true },
+];
+const whatsapp = site.links.whatsapp;
+---
+
+<header class="header theme-header" data-header>
+  <div class="page bar">
+    <Wordmark />
+    <nav aria-label="Main">
+      <ul>
+        {
+          nav.map((item) => {
+            const active = path.startsWith(item.href);
+            return (
+              <li class:list={{ 'mobile-only': item.mobileOnly }}>
+                <a href={item.href} class:list={{ active }} aria-current={active ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+      <div class="cta">
+        {
+          whatsapp ? (
+            <Button href={whatsapp} size="sm" icon="whatsapp" external>
+              Join On WhatsApp
+            </Button>
+          ) : (
+            <Button href={site.links.membershipForm} size="sm" trailing="external" external>
+              Join The Group
+            </Button>
+          )
+        }
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    background: var(--background);
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+
+  .header.scrolled {
+    border-bottom-color: var(--border);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 64px;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  ul {
+    display: flex;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+
+  ul a:hover,
+  ul a.active {
+    color: var(--ink);
+  }
+
+  ul a.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--accent);
+  }
+
+  @media (min-width: 641px) {
+    .mobile-only {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cta {
+      display: none;
+    }
+
+    ul {
+      gap: var(--space-4);
+    }
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  tone?: 'brand' | 'neutral' | 'success' | 'danger';
+  icon?: IconName;
+}
+
+const { tone = 'neutral', icon } = Astro.props;
+---
+
+<span class:list={['tag', `tag-${tone}`]}>
+  {icon && <Icon name={icon} size={14} />}
+  <slot />
+</span>
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: 24px;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .tag-brand {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+
+  .tag-neutral {
+    background: var(--surface);
+    color: var(--muted);
+  }
+
+  .tag-success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  .tag-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+</style>

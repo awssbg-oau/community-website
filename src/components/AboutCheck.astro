@@ -1,0 +1,355 @@
+---
+import Button from './Button.astro';
+import site from '../data/site.json';
+
+const faculties = [
+  'Administration and Management Sciences',
+  'Agriculture',
+  'Arts',
+  'Basic Medical Sciences',
+  'Clinical Sciences',
+  'Dentistry',
+  'Education',
+  'Environmental Design and Management',
+  'Law',
+  'Pharmacy',
+  'Science',
+  'Social Sciences',
+  'Technology',
+];
+const levels = ['100L', '200L', '300L', '400L', '500L', '600L', 'Postgraduate'];
+const pixels = Array.from({ length: 18 }, (_, i) => i);
+---
+
+<div class="about">
+  <div class="who">
+    <p class="lede">A student-led community at OAU, learning and building with AWS together.</p>
+    <p class="body">
+      Workshops start from the basics, labs end with something deployed, and the group chat keeps everyone moving. It’s
+      free, and it runs online and on campus.
+    </p>
+  </div>
+
+  <form class="check" data-check>
+    <p class="check-title">Can I join?</p>
+    <label>
+      <span>Faculty</span>
+      <select name="faculty" required>
+        <option value="" disabled selected>Choose your faculty</option>
+        {faculties.map((f) => <option value={f}>{f}</option>)}
+      </select>
+    </label>
+    <label>
+      <span>Level</span>
+      <select name="level" required>
+        <option value="" disabled selected>Choose your level</option>
+        {levels.map((l) => <option value={l}>{l}</option>)}
+      </select>
+    </label>
+    <fieldset>
+      <legend>Cloud experience</legend>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="exp" value="none" required /><span>Never touched it</span></label>
+        <label class="chip"><input type="radio" name="exp" value="some" /><span>A little</span></label>
+        <label class="chip"><input type="radio" name="exp" value="lots" /><span>Quite a bit</span></label>
+      </div>
+    </fieldset>
+    <button type="submit" class="go">Check</button>
+
+    <div class="result" data-result role="status" aria-live="polite" hidden>
+      <div class="burst" aria-hidden="true">
+        {pixels.map((i) => <i style={`--a:${i * 20}deg;--d:${60 + (i % 3) * 26}px`} />)}
+      </div>
+      <p class="yes" data-yes></p>
+      <p class="why" data-why></p>
+      <div class="result-actions">
+        <Button href={site.links.membershipForm} trailing="external" external>Fill The Membership Form</Button>
+        <button type="button" class="again" data-again>Check again</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  const lines: Record<string, string> = {
+    none: 'Most members started exactly there. Workshops begin from the basics.',
+    some: 'Good start. The labs will have you deploying real things fast.',
+    lots: 'Even better. Come help run a session, the community needs you.',
+  };
+  document.querySelectorAll<HTMLFormElement>('[data-check]').forEach((form) => {
+    const result = form.querySelector<HTMLElement>('[data-result]');
+    const yes = form.querySelector<HTMLElement>('[data-yes]');
+    const why = form.querySelector<HTMLElement>('[data-why]');
+    if (!result || !yes || !why) return;
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const faculty = String(data.get('faculty') ?? '');
+      const level = String(data.get('level') ?? '');
+      const exp = String(data.get('exp') ?? 'none');
+      const short = faculty.split(' and ')[0];
+      yes.textContent = `${level} ${short}? Yes, you’re in.`;
+      why.textContent = lines[exp] ?? lines.none;
+      result.hidden = false;
+      form.classList.remove('done');
+      void form.offsetWidth;
+      form.classList.add('done');
+    });
+    form.querySelector('[data-again]')?.addEventListener('click', () => {
+      form.classList.remove('done');
+      result.hidden = true;
+      form.reset();
+    });
+  });
+</script>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .who {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .lede {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    line-height: 1.2;
+  }
+
+  .body {
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  .check {
+    position: relative;
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
+    background: #fffaf1;
+    color: #0f141a;
+  }
+
+  .check-title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+  }
+
+  label,
+  fieldset {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  label > span,
+  legend {
+    padding: 0;
+    color: #3f4652;
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    text-transform: uppercase;
+  }
+
+  select {
+    min-height: 48px;
+    padding: 0 var(--space-4);
+    border: 2px solid #0f141a;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0f141a;
+    font: inherit;
+  }
+
+  select:focus-visible {
+    outline: 3px solid #ff9900;
+    outline-offset: 2px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .chip {
+    display: inline-flex;
+    position: relative;
+  }
+
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border: 2px solid #0f141a;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0f141a;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    text-transform: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .chip input:checked + span {
+    background: #0f141a;
+    color: #ff9900;
+  }
+
+  .chip input:focus-visible + span {
+    outline: 3px solid #ff9900;
+    outline-offset: 2px;
+  }
+
+  .go {
+    justify-self: start;
+    min-height: 48px;
+    padding: 0 var(--space-6);
+    border: 0;
+    border-radius: 999px;
+    background: #ff9900;
+    color: #0f141a;
+    font: inherit;
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .go:active {
+    transform: scale(0.97);
+  }
+
+  .result {
+    position: absolute;
+    inset: -2px;
+    display: grid;
+    align-content: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: 2px solid #0f141a;
+    border-radius: var(--radius-lg);
+    background: #232f3e;
+    color: #ffffff;
+    overflow: hidden;
+  }
+
+  .result[hidden] {
+    display: none;
+  }
+
+  .yes {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  .why {
+    position: relative;
+    max-width: 36ch;
+    color: #d5dbe3;
+    font-size: 1.125rem;
+  }
+
+  .result-actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .again {
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border: 0;
+    background: none;
+    color: #ffffff;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .burst {
+    position: absolute;
+    right: 18%;
+    top: 30%;
+  }
+
+  .burst i {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff9900;
+    opacity: 0;
+  }
+
+  .burst i:nth-child(3n) {
+    background: #ffffff;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .done .result {
+      animation: pop 420ms var(--ease-spring) both;
+    }
+
+    .done .burst i {
+      animation: fly 900ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes fly {
+    0% {
+      opacity: 1;
+      transform: rotate(var(--a)) translateX(0) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: rotate(var(--a)) translateX(var(--d)) scale(0.6);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .about {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .check,
+    .result {
+      padding: var(--space-5);
+    }
+  }
+</style>

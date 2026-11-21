@@ -1,0 +1,40 @@
+---
+import { icons, type IconName } from '../lib/icons';
+
+interface Props {
+  name: IconName;
+  size?: number;
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 20, label, class: className } = Astro.props;
+const toKebab = (key: string) => key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+const nodes = (icons[name] as unknown as [string, Record<string, string>][]).map(([tag, attrs]) => ({
+  Tag: tag,
+  attrs: Object.fromEntries(
+    Object.entries(attrs)
+      .filter(([key]) => key !== 'key')
+      .map(([key, value]) => [toKebab(key), value]),
+  ),
+}));
+---
+
+<svg
+  class:list={['icon', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  {nodes.map(({ Tag, attrs }) => <Tag {...attrs} />)}
+</svg>
+
+<style>
+  .icon {
+    flex: none;
+  }
+</style>

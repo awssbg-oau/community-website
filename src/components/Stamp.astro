@@ -1,0 +1,199 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  id: string;
+  word: string;
+  ring: string;
+  icon: IconName;
+  tone: 'orange' | 'blue' | 'ink';
+  shape?: 'round' | 'rect';
+  rotate: number;
+  index: number;
+}
+
+const { id, word, ring, icon, tone, shape = 'round', rotate, index } = Astro.props;
+---
+
+<div class:list={['stamp', `tone-${tone}`, `shape-${shape}`]} data-stamp style={`--r:${rotate}deg;--i:${index}`}>
+  {
+    shape === 'round' ? (
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id={`ring-${id}`} d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" />
+        </defs>
+        <circle cx="100" cy="100" r="94" class="line thick" />
+        <circle cx="100" cy="100" r="58" class="line" />
+        <rect x="10" y="104" width="180" height="36" class="band" />
+        <text class="ring">
+          <textPath href={`#ring-${id}`} startOffset="25%" text-anchor="middle">
+            {ring}
+          </textPath>
+        </text>
+      </svg>
+    ) : (
+      <svg viewBox="0 0 220 150" aria-hidden="true">
+        <rect x="4" y="4" width="212" height="142" rx="10" class="line thick" />
+        <rect x="14" y="14" width="192" height="30" rx="5" class="strip" />
+        <text x="110" y="34" class="ring rev" text-anchor="middle">{ring}</text>
+        <line x1="22" y1="122" x2="198" y2="122" class="line" />
+        <text x="110" y="138" class="ring small" text-anchor="middle">OAU · Ile-Ife</text>
+      </svg>
+    )
+  }
+  <div class="face">
+    <Icon name={icon} size={30} />
+    <span class="word">{word}</span>
+  </div>
+</div>
+
+<style>
+  .stamp {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 200px;
+    aspect-ratio: 1;
+    color: var(--c);
+    transform: rotate(var(--r));
+  }
+
+  .shape-rect {
+    width: 230px;
+    aspect-ratio: 220 / 150;
+  }
+
+  .tone-orange {
+    --c: #e07b00;
+  }
+
+  .tone-blue {
+    --c: #232f3e;
+  }
+
+  .tone-ink {
+    --c: #0f141a;
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+  }
+
+  .thick {
+    stroke-width: 5;
+  }
+
+  .ring {
+    fill: currentColor;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .strip {
+    fill: currentColor;
+  }
+
+  .rev {
+    fill: #fffaf1;
+  }
+
+  .small {
+    font-size: 11px;
+  }
+
+  .face {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+  }
+
+  .shape-round .face {
+    gap: 14px;
+  }
+
+  .band {
+    fill: #fffaf1;
+    stroke: currentColor;
+    stroke-width: 3;
+  }
+
+  .shape-rect .face {
+    margin-top: 4px;
+    gap: 2px;
+  }
+
+  .word {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.motion) .stamp {
+      opacity: 0;
+    }
+
+    :global(.motion) .stamp.down {
+      animation: thunk 520ms var(--ease-out) both;
+      animation-delay: calc(var(--i) * 260ms);
+    }
+  }
+
+  @keyframes thunk {
+    0% {
+      opacity: 0;
+      transform: rotate(calc(var(--r) - 18deg)) scale(1.9);
+    }
+
+    60% {
+      opacity: 1;
+      transform: rotate(var(--r)) scale(0.94);
+    }
+
+    78% {
+      transform: rotate(var(--r)) scale(1.03);
+    }
+
+    100% {
+      opacity: 0.92;
+      transform: rotate(var(--r)) scale(1);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .shape-round .face {
+      gap: 7px;
+    }
+
+    .stamp {
+      width: 150px;
+    }
+
+    .shape-rect {
+      width: 170px;
+    }
+
+    .word {
+      font-size: 1.0625rem;
+    }
+
+    .ring {
+      font-size: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,76 @@
+---
+import Chip from './Chip.astro';
+---
+
+<div class="guide" data-guide-el aria-hidden="true">
+  <p class="bubble" data-guide-bubble></p>
+  <div class="guide-chip"><Chip pose="idle" size={76} /></div>
+</div>
+
+<script>
+  import '../scripts/guide.ts';
+</script>
+
+<style>
+  .guide {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    width: 76px;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform;
+  }
+
+  .guide.on {
+    opacity: 1;
+  }
+
+  .bubble {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    width: max-content;
+    max-width: 220px;
+    padding: 10px 14px;
+    border: 2px solid #0f141a;
+    border-radius: 14px 14px 4px 14px;
+    background: #ffffff;
+    color: #0f141a;
+    font-size: 0.875rem;
+    font-weight: var(--weight-medium);
+    line-height: 1.35;
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+    transform-origin: right bottom;
+    transition:
+      opacity var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-spring);
+  }
+
+  .bubble.show {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 720px) {
+    .guide {
+      width: 58px;
+    }
+
+    .guide-chip :global(svg) {
+      width: 58px;
+      height: 66px;
+    }
+
+    .bubble {
+      right: 0;
+      top: auto;
+      bottom: calc(100% + 6px);
+      max-width: 200px;
+      font-size: 0.8125rem;
+      border-radius: 14px 14px 4px 14px;
+    }
+  }
+</style>
