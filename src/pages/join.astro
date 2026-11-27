@@ -1,0 +1,82 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import site from '../data/site.json';
+
+const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScqPODhL-TtQ21zgnQKgqOt4_7HgvSoXsWxDTgEtw9vJ6-8sw/viewform?usp=header';
+const embedUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScqPODhL-TtQ21zgnQKgqOt4_7HgvSoXsWxDTgEtw9vJ6-8sw/viewform?embedded=true';
+---
+
+<Base title="Join The Community" description={`Join ${site.name} at ${site.school}. Free membership for OAU students.`}>
+  <section class="top theme-header sbg-grid">
+    <div class="page inner">
+      <a class="back" href="/"><Icon name="arrowLeft" size={16} /> Back Home</a>
+      <h1>Join The Community</h1>
+      <p>Fill out the membership form below to get your AWS SBG OAU passport and event invites.</p>
+      <div class="actions">
+        <Button href={formUrl} variant="secondary" size="sm" trailing="external" external>
+          Open Form In New Tab
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <iframe
+    src={embedUrl}
+    title="AWS Student Builder Group OAU Membership Form"
+    scrolling="no"
+  >
+    Loading membership form…
+  </iframe>
+</Base>
+
+<style>
+  .inner {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-8);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: fit-content;
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    text-decoration: underline;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+  }
+
+  .inner p {
+    max-width: 54ch;
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  .actions {
+    margin-top: var(--space-2);
+  }
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 2400px;
+    border: 0;
+    overflow: hidden;
+  }
+
+  @media (max-width: 600px) {
+    iframe {
+      height: 2750px;
+    }
+  }
+</style>

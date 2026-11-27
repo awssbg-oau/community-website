@@ -8,7 +8,8 @@ const nav = [
   { label: 'Events', href: '/events/' },
 ];
 const whatsapp = site.links.whatsapp;
-const joinHref = whatsapp || site.links.membershipForm;
+const joinHref = whatsapp || '/join/';
+const isExternalJoin = Boolean(whatsapp);
 ---
 
 <header class="header theme-header" data-header>
@@ -36,12 +37,12 @@ const joinHref = whatsapp || site.links.membershipForm;
               Join On WhatsApp
             </Button>
           ) : (
-            <Button href={site.links.membershipForm} size="sm" trailing="external" external class="cta-desktop">
+            <Button href="/join/" size="sm" trailing="external" class="cta-desktop">
               Join The Community
             </Button>
           )
         }
-        <Button href={joinHref} size="sm" trailing="external" external class="cta-mobile">
+        <Button href={joinHref} size="sm" trailing="external" external={isExternalJoin} class="cta-mobile">
           Join
         </Button>
       </div>
