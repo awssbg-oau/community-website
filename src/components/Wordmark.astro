@@ -15,7 +15,10 @@ const { size = 'header' } = Astro.props;
   <span class="divider" aria-hidden="true"></span>
   <SbgMark size={size === 'large' ? 34 : 26} />
   <span class="text">
-    <span class="name">AWS Student Builder Group</span>
+    <span class="name">
+      <span class="name-full">AWS Student Builder Group</span>
+      <span class="name-short">AWS SBG</span>
+    </span>
     <span class="school">
       <span class="full">at {site.school}</span>
       <span class="short">at OAU</span>
@@ -59,7 +62,8 @@ const { size = 'header' } = Astro.props;
     color: var(--muted);
   }
 
-  .short {
+  .short,
+  .name-short {
     display: none;
   }
 
@@ -77,11 +81,13 @@ const { size = 'header' } = Astro.props;
       display: none;
     }
 
-    .lockup-header .full {
+    .lockup-header .full,
+    .lockup-header .name-full {
       display: none;
     }
 
-    .lockup-header .short {
+    .lockup-header .short,
+    .lockup-header .name-short {
       display: inline;
     }
 

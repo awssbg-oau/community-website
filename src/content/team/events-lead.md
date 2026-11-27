@@ -1,7 +1,6 @@
 ---
-name: Name Coming Soon
-role: Events Lead
+name: Mojirade Adekanmi
+role: Programs Lead
 unit: events
 order: 3
-sample: true
 ---

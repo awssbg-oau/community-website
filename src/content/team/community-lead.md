@@ -1,7 +1,6 @@
 ---
-name: Name Coming Soon
-role: Community Lead
+name: Ajimoti Peter
+role: Community Manager
 unit: community
-order: 4
-sample: true
+order: 5
 ---

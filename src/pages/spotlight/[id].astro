@@ -12,14 +12,40 @@ export async function getStaticPaths() {
 
 const { item } = Astro.props;
 const { Content } = await render(item);
-const { title, kind, by, date, stack, link, photo, sample } = item.data;
-const label = { build: 'Build', win: 'Win', moment: 'Moment' }[kind];
-const icon = ({ build: 'build', win: 'win', moment: 'moment' } as const)[kind];
+const { title, kind, by, date, summary, stack, link, linkLabel, photo, sample } = item.data;
+const label = {
+  build: 'Build',
+  win: 'Win',
+  moment: 'Moment',
+  announcement: 'Announcement',
+  article: 'Article',
+}[kind];
+const icon = (
+  {
+    build: 'build',
+    win: 'win',
+    moment: 'moment',
+    announcement: 'announcement',
+    article: 'article',
+  } as const
+)[kind];
+const defaultLinkLabel = {
+  build: 'See It Live',
+  win: 'View Credential',
+  moment: 'See More',
+  announcement: 'Learn More',
+  article: 'Reference Link',
+}[kind];
 const when = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Lagos' }).format(date);
-const others = (await getCollection('showcase')).filter((o) => o.id !== item.id).slice(0, 3);
+const words = (item.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+const readMins = kind === 'article' ? Math.max(1, Math.round(words / 200)) : null;
+const others = (await getCollection('showcase'))
+  .filter((o) => o.id !== item.id)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
 ---
 
-<Base title={title} description={`${label} by ${by} · AWS Student Builder Group OAU`}>
+<Base title={title} description={summary ?? `${label} by ${by} · AWS Student Builder Group OAU`}>
   <section class="top theme-header sbg-grid">
     <div class="page inner">
       <a class="back" href="/spotlight/"><Icon name="arrowLeft" size={16} /> All Spotlights</a>
@@ -28,7 +54,11 @@ const others = (await getCollection('showcase')).filter((o) => o.id !== item.id)
         {sample && <span class="sample">Sample</span>}
       </p>
       <h1>{title}</h1>
-      <p class="by">{by} · {when}</p>
+      {summary && <p class="summary">{summary}</p>}
+      <p class="by">
+        {by} · {when}
+        {readMins && <span> · {readMins} min read</span>}
+      </p>
       {stack.length > 0 && <ul class="stack">{stack.map((s) => <li>{s}</li>)}</ul>}
     </div>
   </section>
@@ -39,7 +69,7 @@ const others = (await getCollection('showcase')).filter((o) => o.id !== item.id)
     {
       link && (
         <Button href={link} trailing="external" external>
-          See It Live
+          {linkLabel || defaultLinkLabel}
         </Button>
       )
     }
@@ -106,8 +136,15 @@ const others = (await getCollection('showcase')).filter((o) => o.id !== item.id)
   }
 
   h1 {
-    max-width: 20ch;
+    max-width: 22ch;
     font-size: var(--text-display);
+  }
+
+  .summary {
+    max-width: 58ch;
+    color: var(--muted);
+    font-size: 1.1875rem;
+    line-height: 1.5;
   }
 
   .by {
@@ -148,8 +185,88 @@ const others = (await getCollection('showcase')).filter((o) => o.id !== item.id)
   .prose {
     display: grid;
     gap: var(--space-4);
+    width: 100%;
     font-size: 1.125rem;
-    line-height: 1.7;
+    line-height: 1.75;
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-5);
+    font-size: var(--text-title);
+    line-height: 1.2;
+  }
+
+  .prose :global(h3) {
+    margin-top: var(--space-4);
+    font-size: var(--text-heading);
+    line-height: 1.3;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .prose :global(blockquote) {
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .prose :global(code) {
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .prose :global(pre) {
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: #141b25;
+    color: #ffffff;
+    overflow-x: auto;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .prose :global(pre code) {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  .prose :global(a) {
+    color: var(--brand);
+    font-weight: var(--weight-medium);
+    text-decoration: underline;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--brand-hover);
+  }
+
+  .prose :global(img) {
+    max-width: 100%;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-md);
+  }
+
+  .prose :global(hr) {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin-block: var(--space-4);
   }
 
   .more {

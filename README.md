@@ -83,7 +83,7 @@ Add a file to `src/content/team/` with `name`, `role`, `unit` (`leadership`, `te
 
 ### Spotlight
 
-Add a file to `src/content/showcase/` with `title`, `kind` (`build`, `win` or `moment`), `by` and `date`. `stack`, `link` and `photo` are optional. The Markdown body becomes the entry's page.
+Add a file to `src/content/showcase/` with `title`, `kind` (`build`, `win`, `moment`, `announcement` or `article`), `by` and `date`. `summary`, `stack`, `link`, `linkLabel` and `photo` are optional. The Markdown body becomes the entry's page.
 
 ### Voices
 

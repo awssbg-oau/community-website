@@ -30,6 +30,8 @@ export const icons = {
   instagram: InstagramIcon,
   quote: QuoteUpIcon,
   learn: BookOpen01Icon,
+  article: BookOpen01Icon,
+  announcement: Rocket01Icon,
   build: CodeSquareIcon,
   grow: Certificate01Icon,
   rocket: Rocket01Icon,

@@ -1,7 +1,6 @@
 ---
-name: Name Coming Soon
-role: Design Lead
+name: Precious James
+role: Designs Lead
 unit: design
-order: 5
-sample: true
+order: 6
 ---

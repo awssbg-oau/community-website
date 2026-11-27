@@ -1,0 +1,190 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Button from '../../components/Button.astro';
+import EventRow from '../../components/EventRow.astro';
+import Icon from '../../components/Icon.astro';
+import Tag from '../../components/Tag.astro';
+import { isUpcoming, longDate, timeRange } from '../../lib/events';
+
+export async function getStaticPaths() {
+  const events = await getCollection('events');
+  return events.map((event) => ({ params: { id: event.id }, props: { event } }));
+}
+
+const { event } = Astro.props;
+const { Content } = await render(event);
+const now = new Date();
+const upcoming = isUpcoming(event, now);
+const { title, kind, start, end, mode, venue, venueDetail, meetup, attended, audience, photos } = event.data;
+const kindLabel = { kickoff: 'Kickoff', workshop: 'Workshop', talk: 'Talk', lab: 'Lab', hangout: 'Hangout' }[kind];
+const others = (await getCollection('events'))
+  .filter((e) => e.id !== event.id)
+  .sort((a, b) => b.data.start.getTime() - a.data.start.getTime())
+  .slice(0, 3);
+---
+
+<Base title={title} description={`${kindLabel} · ${longDate(start)} · AWS Student Builder Group OAU`}>
+  <section class="top theme-header sbg-grid">
+    <div class="page inner">
+      <a class="back" href="/events/"><Icon name="arrowLeft" size={16} /> All Events</a>
+      <div class="tags">
+        {upcoming ? <Tag tone="brand">Upcoming</Tag> : <Tag>Ended</Tag>}
+        <Tag>{kindLabel}</Tag>
+        <Tag icon={mode === 'online' ? 'online' : 'location'}>{mode === 'online' ? 'Online' : 'In Person'}</Tag>
+      </div>
+      <h1>{title}</h1>
+      <p class="meta tnum">{longDate(start)} · {timeRange(start, end)}</p>
+      <p class="venue">
+        <Icon name={mode === 'online' ? 'online' : 'location'} size={18} />
+        <span>{venue}{venueDetail ? `, ${venueDetail}` : ''}</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="page body">
+    <article class="prose"><Content /></article>
+    {audience && <p class="audience">{audience}</p>}
+    {
+      attended !== undefined && !upcoming && (
+        <p class="attended tnum">
+          <Icon name="people" size={18} />
+          <span>{attended} builders attended this session.</span>
+        </p>
+      )
+    }
+    <div class="actions">
+      <Button href={meetup} variant={upcoming ? 'primary' : 'secondary'} trailing="external" external>
+        {upcoming ? 'RSVP On Meetup' : 'View On Meetup'}
+      </Button>
+    </div>
+
+    {
+      photos.length > 0 && (
+        <div class="photos">
+          {photos.map((src) => (
+            <img src={src} alt={title} loading="lazy" />
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  {
+    others.length > 0 && (
+      <section class="page more">
+        <h2>More Events</h2>
+        <ul class="rows">
+          {others.map((o, i) => (
+            <EventRow event={o} now={now} index={i} />
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .inner {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-8);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: fit-content;
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    text-decoration: underline;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  h1 {
+    max-width: 22ch;
+    font-size: var(--text-display);
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  .venue {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    max-width: calc(760px + 2 * var(--gutter));
+    padding-block: var(--space-8);
+  }
+
+  .prose {
+    display: grid;
+    gap: var(--space-4);
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+
+  .audience {
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .attended {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+    width: 100%;
+    margin-top: var(--space-3);
+  }
+
+  .photos img {
+    width: 100%;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+  }
+
+  .more {
+    display: grid;
+    gap: var(--space-4);
+    padding-top: var(--space-6);
+  }
+
+  .more h2 {
+    font-size: var(--text-title);
+  }
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+  }
+</style>

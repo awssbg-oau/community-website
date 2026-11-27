@@ -1,7 +1,6 @@
 ---
-name: Name Coming Soon
-role: Captain
+name: Ogechukwu Okoli
+role: Group Leader
 unit: leadership
 order: 1
-sample: true
 ---

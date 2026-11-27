@@ -1,7 +1,6 @@
 ---
-name: Name Coming Soon
-role: Tech Lead
+name: Joseph Taiwo
+role: Technical Lead
 unit: tech
-order: 2
-sample: true
+order: 4
 ---
