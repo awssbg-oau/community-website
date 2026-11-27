@@ -9,10 +9,33 @@ interface Props {
 }
 
 const { item, index, wide = false } = Astro.props;
-const { title, kind, by, date, stack, photo, sample } = item.data;
-const label = { build: 'Build', win: 'Win', moment: 'Moment' }[kind];
-const icon = ({ build: 'build', win: 'win', moment: 'moment' } as const)[kind];
+const { title, kind, by, date, summary, stack, photo, sample } = item.data;
+const label = {
+  build: 'Build',
+  win: 'Win',
+  moment: 'Moment',
+  announcement: 'Announcement',
+  article: 'Article',
+}[kind];
+const icon = (
+  {
+    build: 'build',
+    win: 'win',
+    moment: 'moment',
+    announcement: 'announcement',
+    article: 'article',
+  } as const
+)[kind];
+const cta = {
+  build: 'Read the story',
+  win: 'Read the story',
+  moment: 'Read the story',
+  announcement: 'Read announcement',
+  article: 'Read the article',
+}[kind];
 const when = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(date);
+const words = (item.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+const readMins = kind === 'article' ? Math.max(1, Math.round(words / 200)) : null;
 ---
 
 <li class:list={['item', `kind-${kind}`, { wide }]} data-reveal style={`--i:${index}`}>
@@ -22,9 +45,13 @@ const when = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', 
     {sample && <span class="sample">Sample</span>}
   </div>
   <h3 class="title"><a class="stretch" href={`/spotlight/${item.id}/`}>{title}</a></h3>
+  {summary && <p class="summary">{summary}</p>}
   {stack.length > 0 && <ul class="stack">{stack.map((s) => <li>{s}</li>)}</ul>}
-  <p class="by">{by} · {when}</p>
-  <span class="open">Read the story <Icon name="arrowRight" size={16} /></span>
+  <p class="by">
+    {by} · {when}
+    {readMins && <span> · {readMins} min read</span>}
+  </p>
+  <span class="open">{cta} <Icon name="arrowRight" size={16} /></span>
 </li>
 
 <style>
@@ -60,6 +87,46 @@ const when = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', 
   .kind-moment {
     background: #141b25;
     color: #ffffff;
+  }
+
+  .kind-announcement {
+    background: #232f3e;
+    color: #ffffff;
+    border: 2px solid #ff9900;
+  }
+
+  .kind-announcement .tag {
+    color: #ff9900;
+  }
+
+  .kind-announcement .stack li {
+    background: rgb(255 255 255 / 0.12);
+    color: #ffffff;
+  }
+
+  .kind-article {
+    background: #fffaf1;
+    color: #0f141a;
+    border: 2px solid #0f141a;
+  }
+
+  .kind-article .tag {
+    color: #a85400;
+  }
+
+  .kind-article .stack li {
+    background: #fff2dc;
+    color: #0f141a;
+  }
+
+  .summary {
+    font-size: var(--text-small);
+    line-height: 1.5;
+    opacity: 0.85;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .photo {

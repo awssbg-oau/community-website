@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Button from '../../components/Button.astro';
+import EventRow from '../../components/EventRow.astro';
+import NextUp from '../../components/NextUp.astro';
+import Notice from '../../components/Notice.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import site from '../../data/site.json';
+import { splitEvents } from '../../lib/events';
+
+const now = new Date();
+const all = await getCollection('events');
+const { upcoming, past } = splitEvents(all, now);
+const [next, ...later] = upcoming;
+---
+
+<Base title="Events" description="Upcoming and past workshops, labs, calls and hangouts from AWS Student Builder Group OAU.">
+  <section class="top theme-header sbg-grid">
+    <div class="page inner">
+      <h1>Events</h1>
+      <p>Workshops, calls and hangouts, free for OAU students.</p>
+    </div>
+  </section>
+
+  <div class="page content">
+    <section class="block" aria-labelledby="upcoming-title">
+      <SectionTitle title="Upcoming" id="upcoming-title" />
+      {
+        next ? (
+          <div class="upcoming-list">
+            <NextUp event={next} />
+            {later.length > 0 && (
+              <ul class="rows">
+                {later.map((event, i) => (
+                  <EventRow event={event} now={now} index={i} />
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <Notice title="Nothing scheduled right now.">
+            Past events are below. New ones land on Meetup first.
+            <Button slot="action" href={site.links.meetup} size="sm" variant="secondary" trailing="external" external>
+              Follow On Meetup
+            </Button>
+          </Notice>
+        )
+      }
+    </section>
+
+    {
+      past.length > 0 && (
+        <section class="block" aria-labelledby="past-title">
+          <SectionTitle title="Past Sessions" id="past-title" />
+          <ul class="rows">
+            {past.map((event, i) => (
+              <EventRow event={event} now={now} index={i} />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .inner {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  h1 {
+    font-size: var(--text-display);
+  }
+
+  .inner p {
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  .content {
+    display: grid;
+    gap: var(--space-9);
+    padding-top: var(--space-8);
+  }
+
+  .block {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .upcoming-list {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+  }
+</style>

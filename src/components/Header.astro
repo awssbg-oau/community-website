@@ -6,9 +6,9 @@ import site from '../data/site.json';
 const path = Astro.url.pathname;
 const nav = [
   { label: 'Events', href: '/events/' },
-  { label: 'Join', href: '/join/', mobileOnly: true },
 ];
 const whatsapp = site.links.whatsapp;
+const joinHref = whatsapp || site.links.membershipForm;
 ---
 
 <header class="header theme-header" data-header>
@@ -20,7 +20,7 @@ const whatsapp = site.links.whatsapp;
           nav.map((item) => {
             const active = path.startsWith(item.href);
             return (
-              <li class:list={{ 'mobile-only': item.mobileOnly }}>
+              <li>
                 <a href={item.href} class:list={{ active }} aria-current={active ? 'page' : undefined}>
                   {item.label}
                 </a>
@@ -32,15 +32,18 @@ const whatsapp = site.links.whatsapp;
       <div class="cta">
         {
           whatsapp ? (
-            <Button href={whatsapp} size="sm" icon="whatsapp" external>
+            <Button href={whatsapp} size="sm" icon="whatsapp" external class="cta-desktop">
               Join On WhatsApp
             </Button>
           ) : (
-            <Button href={site.links.membershipForm} size="sm" trailing="external" external>
-              Join The Group
+            <Button href={site.links.membershipForm} size="sm" trailing="external" external class="cta-desktop">
+              Join The Community
             </Button>
           )
         }
+        <Button href={joinHref} size="sm" trailing="external" external class="cta-mobile">
+          Join
+        </Button>
       </div>
     </nav>
   </div>
@@ -109,14 +112,18 @@ const whatsapp = site.links.whatsapp;
   }
 
   @media (min-width: 641px) {
-    .mobile-only {
+    .cta :global(.cta-mobile) {
       display: none;
     }
   }
 
   @media (max-width: 640px) {
-    .cta {
+    .cta :global(.cta-desktop) {
       display: none;
+    }
+
+    nav {
+      gap: var(--space-3);
     }
 
     ul {
